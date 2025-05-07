@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do WebApp</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      padding: 20px;
+    }
+    h2 {
+      color: #333;
+    }
+    #taskInput {
+      width: 70%;
+      padding: 10px;
+    }
+    #addBtn {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .taskList {
+      margin-top: 20px;
+    }
+    .task {
+      background: #fff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 5px solid #007bff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .task.completed {
+      border-left-color: #28a745;
+      text-decoration: line-through;
+      opacity: 0.7;
+    }
+    .actions button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .timestamp {
+      font-size: 0.8em;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>To-Do WebApp</h2>
+
+  <input type="text" id="taskInput" placeholder="Enter a new task"/>
+  <button id="addBtn">Add Task</button>
+
+  <div class="taskList" id="pendingTasks">
+    <h3>Pending Tasks</h3>
+  </div>
+
+  <div class="taskList" id="completedTasks">
+    <h3>Completed Tasks</h3>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const pendingTasks = document.getElementById("pendingTasks");
+    const completedTasks = document.getElementById("completedTasks");
+
+    document.getElementById("addBtn").addEventListener("click", addTask);
+
+    function addTask() {
+      const taskText = taskInput.value.trim();
+      if (taskText === "") return;
+
+      const task = createTaskElement(taskText);
+      pendingTasks.appendChild(task);
+      taskInput.value = "";
+    }
+
+    function createTaskElement(text, isCompleted = false, time = new Date()) {
+      const taskDiv = document.createElement("div");
+      taskDiv.className = "task" + (isCompleted ? " completed" : "");
+
+      const content = document.createElement("div");
+      content.innerHTML = `<strong>${text}</strong><div class="timestamp">${formatDateTime(time)}</div>`;
+      taskDiv.appendChild(content);
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const completeBtn = document.createElement("button");
+      completeBtn.textContent = isCompleted ? "Undo" : "Complete";
+      completeBtn.onclick = () => toggleComplete(taskDiv, text);
+      actions.appendChild(completeBtn);
+
+      const editBtn = document.createElement("button");
+      editBtn.textContent = "Edit";
+      editBtn.onclick = () => editTask(taskDiv);
+      actions.appendChild(editBtn);
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "Delete";
+      deleteBtn.onclick = () => taskDiv.remove();
+      actions.appendChild(deleteBtn);
+
+      taskDiv.appendChild(actions);
+
+      return taskDiv;
+    }
+
+    function toggleComplete(taskDiv, text) {
+      const isNowCompleted = !taskDiv.classList.contains("completed");
+      taskDiv.remove();
+
+      const newTask = createTaskElement(text, isNowCompleted, new Date());
+      if (isNowCompleted) {
+        completedTasks.appendChild(newTask);
+      } else {
+        pendingTasks.appendChild(newTask);
+      }
+    }
+
+    function editTask(taskDiv) {
+      const newText = prompt("Edit your task:", taskDiv.querySelector("strong").textContent);
+      if (newText) {
+        taskDiv.querySelector("strong").textContent = newText;
+      }
+    }
+
+    function formatDateTime(date) {
+      return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    }
+  </script>
+
+</body>
+</html>
